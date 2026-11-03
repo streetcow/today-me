@@ -1019,9 +1019,23 @@
     input.addEventListener("input", () => updateGauge(input));
   });
 
+  // 결과 번호를 주소(?r=번호)에도 남겨, 그 주소를 열면 같은 결과가 바로 나오게 한다.
+  const pageUrl = location.href.split(/[?#]/)[0];
+  const resultUrl = (index) => `${pageUrl}?r=${index}`;
+
+  // 주소를 바꿀 수 없는 환경(앱 미리보기 등)에서는 주소 없이 방문 기록만 남긴다.
+  function record(method, state, url) {
+    try {
+      history[method](state, "", url);
+    } catch {
+      history[method](state, "");
+    }
+  }
+
   gaugesEl.addEventListener("submit", (event) => {
     event.preventDefault();
-    history.pushState({ result: judgeResult() }, "");
+    const index = judgeResult();
+    record("pushState", { result: index }, resultUrl(index));
     showPage();
   });
 
@@ -1135,11 +1149,11 @@
     setTimeout(() => URL.revokeObjectURL(link.href), 1000);
   }
 
-  // 페이지 주소를 클립보드에 복사하고, 버튼 글자로 잠깐 결과를 알려 준다.
+  // 지금 결과가 바로 열리는 주소를 클립보드에 복사하고, 버튼 글자로 잠깐 결과를 알려 준다.
   // 클립보드 API를 쓸 수 없는 환경에서는 숨긴 입력칸을 선택해 복사한다.
   async function copyLink() {
     const button = document.getElementById("copy-button");
-    const url = location.href.split("#")[0];
+    const url = resultUrl(history.state.result);
     let copied = false;
     try {
       await navigator.clipboard.writeText(url);
@@ -1170,6 +1184,16 @@
   });
 
   window.addEventListener("popstate", showPage);
+
+  // 공유받은 주소(?r=번호)로 처음 들어오면, 처음 화면을 방문 기록에 먼저 깔고 그 위에 결과를 연다.
+  // 그래야 결과를 눌렀을 때 사이트 밖이 아니라 처음 화면으로 돌아간다.
+  const shared = new URLSearchParams(location.search).get("r");
+  if (history.state === null && shared !== null) {
+    record("replaceState", null, pageUrl);
+    if (/^\d+$/.test(shared) && results[shared] !== undefined) {
+      record("pushState", { result: Number(shared) }, resultUrl(shared));
+    }
+  }
   showPage();
 </script>
 </body>
