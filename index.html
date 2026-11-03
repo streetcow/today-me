@@ -1,0 +1,1176 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>오늘의 나</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  /* 하이쿠 포스터처럼 미색 종이, 먹색 글씨, 붉은 낙관을 바탕으로 한다. */
+  :root {
+    --ink: #2a2521;
+    --muted: #8b8076;
+    --paper: #f5eee1;
+    --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .33 0 0 0 0 .22 0 0 0 .5 -.21'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23g)'/%3E%3C/svg%3E");
+    --fibers: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='turbulence' baseFrequency='.03 .05' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .47 0 0 0 0 .33 -6 0 0 0 .26'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23f)'/%3E%3C/svg%3E");
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--grain), var(--paper);
+    color: var(--ink);
+    font-family: "Gowun Batang", "Batang", "AppleMyungjo", serif;
+    font-size: 18px;
+    line-height: 1.5;
+  }
+
+  main {
+    width: 100%;
+    max-width: 440px;
+    margin: 0 auto;
+    padding: 36px 16px 40px;
+    text-align: center;
+  }
+
+  h1 {
+    margin: 0;
+    font-family: "Gaegu", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    font-size: 48px;
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: .02em;
+  }
+  h1[hidden] { display: none; }
+
+  .face {
+    display: block;
+    width: 130px;
+    height: 130px;
+    margin: 10px auto 14px;
+  }
+
+  .art * { fill: none; stroke: var(--ink); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+  .art .white { fill: var(--paper); }
+  .art .fill { fill: var(--ink); stroke-width: 2; }
+  .art .thin { stroke-width: 3; }
+  .art .fine { stroke-width: 2.2; }
+  .art .cut { stroke: var(--paper); stroke-width: 3; }
+  .art .stroke-white { fill: var(--ink); stroke: var(--paper); stroke-width: 3; }
+  .art .cheek { fill: rgba(42, 37, 33, .14); stroke: none; }
+
+  /* 믹싱 콘솔처럼 채널 3개를 나란히 세운다. 위가 100, 아래가 0이다. */
+  .gauges {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px 8px;
+  }
+
+  .gauge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .gauge label {
+    display: flex;
+    flex-direction: column;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.5;
+    letter-spacing: .08em;
+  }
+
+  .gauge output {
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  .end {
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  /* 페이더 양옆 눈금: 0부터 100까지 10 간격으로 11줄 */
+  .fader {
+    position: relative;
+    margin: 4px 0;
+  }
+
+  .fader::before {
+    content: "";
+    position: absolute;
+    top: 11.25px;
+    left: 50%;
+    width: 60px;
+    height: 221.5px;
+    transform: translateX(-50%);
+    background:
+      repeating-linear-gradient(rgba(42, 37, 33, .4) 0 1.5px, transparent 1.5px 22px) left / 11px 100% no-repeat,
+      repeating-linear-gradient(rgba(42, 37, 33, .4) 0 1.5px, transparent 1.5px 22px) right / 11px 100% no-repeat;
+  }
+
+  .gauge input {
+    position: relative;
+    display: block;
+    width: 44px;
+    height: 244px;
+    margin: 0;
+    background: transparent;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    writing-mode: vertical-lr;
+    direction: rtl;
+  }
+
+  .gauge input::-webkit-slider-runnable-track {
+    box-sizing: border-box;
+    width: 10px;
+    height: 100%;
+    margin: 0 auto;
+    border: 1.5px solid var(--ink);
+    border-radius: 5px;
+    background: linear-gradient(to top, var(--ink) calc(var(--ratio) * 100%), transparent 0);
+  }
+
+  .gauge input::-moz-range-track {
+    box-sizing: border-box;
+    width: 10px;
+    height: 100%;
+    border: 1.5px solid var(--ink);
+    border-radius: 5px;
+    background: linear-gradient(to top, var(--ink) calc(var(--ratio) * 100%), transparent 0);
+  }
+
+  /* 페이더 손잡이: 가운데 줄이 그어진 납작한 캡 */
+  .gauge input::-webkit-slider-thumb {
+    box-sizing: border-box;
+    width: 40px;
+    height: 22px;
+    margin-left: -16.5px;
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    background: linear-gradient(var(--ink), var(--ink)) center / 55% 2px no-repeat, var(--paper);
+    -webkit-appearance: none;
+  }
+
+  .gauge input::-moz-range-thumb {
+    box-sizing: border-box;
+    width: 40px;
+    height: 22px;
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    background: linear-gradient(var(--ink), var(--ink)) center / 55% 2px no-repeat, var(--paper);
+  }
+
+  .gauge input:focus-visible {
+    outline: 1.5px solid var(--ink);
+    outline-offset: 3px;
+  }
+
+  .judge {
+    grid-column: 1 / -1;
+  }
+
+  .judge, .share button {
+    min-height: 50px;
+    padding: 8px 4px;
+    border: 1.5px solid var(--ink);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--ink);
+    font: inherit;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: .2em;
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease;
+  }
+
+  .judge:hover, .share button:hover {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .judge:focus-visible, .share button:focus-visible {
+    outline: 1.5px solid var(--ink);
+    outline-offset: 3px;
+  }
+
+  /* 결과 아래 URL 복사·이미지 저장 버튼 */
+  .share {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    max-width: 400px;
+    margin: 18px auto 0;
+  }
+  .share[hidden] { display: none; }
+
+  /* 결과는 2:3 하이쿠 포스터 한 장. 글자 크기는 포스터 폭(cqw)에 맞춰 함께 커지고 줄어든다. */
+  .result {
+    --paper: #faf5ea;
+    position: relative;
+    max-width: 400px;
+    margin: 0 auto;
+    aspect-ratio: 2 / 3;
+    overflow: hidden;
+    container-type: inline-size;
+    background: var(--fibers), var(--grain), var(--paper);
+    box-shadow: 0 1px 2px rgba(60, 45, 25, .12), 0 12px 32px rgba(60, 45, 25, .14);
+    cursor: pointer;
+    animation: fade .5s ease-out;
+  }
+  .result[hidden] { display: none; }
+
+  .scene {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .verse {
+    position: absolute;
+  }
+
+  .name {
+    margin: 0;
+    font-family: "Gaegu", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    font-size: 7.6cqw;
+    font-weight: 400;
+    line-height: 1.2;
+  }
+
+  .sentence {
+    margin: 0;
+    margin-block-start: 3.5cqw;
+    font-size: 4.6cqw;
+    line-height: 1.85;
+    letter-spacing: .02em;
+    white-space: pre;
+  }
+
+  /* 가로로 넓은 장면: 그림은 위, 시는 아래 가운데 */
+  .layout-wide .verse { left: 5%; right: 5%; top: 58%; }
+
+  /* 서 있는 인물: 인물은 왼쪽 아래, 시는 오른쪽 위 */
+  .layout-side .verse { left: 37%; right: 3%; top: 9%; }
+  .layout-side .name { font-size: 6.8cqw; }
+
+  /* 앉은 인물: 인물은 오른쪽 아래, 시는 왼쪽 위에 세로로 */
+  .layout-seated .verse {
+    left: 8%;
+    top: 7%;
+    text-align: start;
+    writing-mode: vertical-rl;
+  }
+  .layout-seated .name { font-size: 7cqw; }
+  .layout-seated .sentence {
+    font-size: 4.8cqw;
+    line-height: 1.75;
+    letter-spacing: .1em;
+  }
+
+  /* 포스터 아래쪽: 왼쪽에 판단 이모지, 오른쪽에 서명과 낙관 */
+  .footer {
+    position: absolute;
+    left: 6%;
+    right: 5%;
+    bottom: 4%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .reason {
+    margin: 0;
+    font-size: 4.4cqw;
+    line-height: 1;
+    word-spacing: 1.2cqw;
+    filter: grayscale(1);
+  }
+
+  .sign {
+    display: flex;
+    align-items: center;
+    gap: 2cqw;
+    margin: 0;
+    color: var(--muted);
+    font-family: "Gaegu", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    font-size: 4.6cqw;
+    line-height: 1;
+  }
+
+  .seal {
+    display: block;
+    width: 7.5cqw;
+    height: 7.5cqw;
+  }
+
+  @keyframes fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .judge, .share button { transition: none; }
+    .result { animation: none; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position: absolute" aria-hidden="true">
+  <filter id="ink">
+    <feTurbulence type="fractalNoise" baseFrequency=".025" numOctaves="1" seed="4"/>
+    <feDisplacementMap in="SourceGraphic" scale="3"/>
+  </filter>
+</svg>
+<main>
+  <h1>오늘의 나</h1>
+  <div id="choose">
+    <svg class="face" viewBox="0 0 120 120" role="img" aria-label="오늘 기분은 어때? 게이지에 따라 바뀌는 얼굴">
+      <g class="art" id="face" filter="url(#ink)"></g>
+    </svg>
+
+    <form class="gauges" id="gauges">
+      <div class="gauge">
+        <label for="joy">기쁨 <output id="joy-value" for="joy">50</output></label>
+        <span class="end">즐거워</span>
+        <div class="fader"><input id="joy" type="range" min="0" max="100" value="50" autocomplete="off"></div>
+        <span class="end">우울해</span>
+      </div>
+      <div class="gauge">
+        <label for="energy">에너지 <output id="energy-value" for="energy">50</output></label>
+        <span class="end">활기차</span>
+        <div class="fader"><input id="energy" type="range" min="0" max="100" value="50" autocomplete="off"></div>
+        <span class="end">지쳤어</span>
+      </div>
+      <div class="gauge">
+        <label for="stress">스트레스 <output id="stress-value" for="stress">50</output></label>
+        <span class="end">답답해</span>
+        <div class="fader"><input id="stress" type="range" min="0" max="100" value="50" autocomplete="off"></div>
+        <span class="end">편안해</span>
+      </div>
+      <button class="judge" type="submit">판단하기</button>
+    </form>
+  </div>
+
+  <section class="result" id="result" aria-live="polite" hidden>
+    <div id="illustration"></div>
+    <div class="verse">
+      <p class="name" id="name"></p>
+      <p class="sentence" id="sentence"></p>
+    </div>
+    <div class="footer">
+      <p class="reason" id="reason" role="img"></p>
+      <p class="sign">
+        <span id="sign">— 오늘의 나</span>
+        <svg class="seal" viewBox="0 0 40 40" aria-hidden="true">
+          <rect x="3" y="3" width="34" height="34" rx="3" fill="#b3372d" filter="url(#ink)"/>
+          <path d="M12 10V27H23M28 8V32M28 20H34" fill="none" stroke="#faf5ea" stroke-width="3.4" stroke-linecap="square"/>
+        </svg>
+      </p>
+    </div>
+  </section>
+  <div class="share" id="share" hidden>
+    <button type="button" id="copy-button">URL 복사</button>
+    <button type="button" id="save-button">이미지 저장</button>
+  </div>
+</main>
+
+<script>
+  const sparkle = (x, y, r) =>
+    `<path class="fill" d="M${x} ${y - r}Q${x} ${y} ${x + r} ${y}Q${x} ${y} ${x} ${y + r}Q${x} ${y} ${x - r} ${y}Q${x} ${y} ${x} ${y - r}Z"/>`;
+
+  const heart = (x, y, s) =>
+    `<path class="fill" d="M${x} ${y + 9 * s}C${x - 12 * s} ${y} ${x - 6 * s} ${y - 9 * s} ${x} ${y - 3 * s}C${x + 6 * s} ${y - 9 * s} ${x + 12 * s} ${y} ${x} ${y + 9 * s}Z"/>`;
+
+  const drop = (x, y) =>
+    `<path class="fill" d="M${x} ${y}Q${x + 7} ${y + 10} ${x} ${y + 13}Q${x - 7} ${y + 10} ${x} ${y}Z"/>`;
+
+  const zzz = (x, y, s) => `<path d="M${x} ${y}h${s}l${-s} ${s}h${s}"/>`;
+
+  const cloud = (x, y, cls) =>
+    `<path class="${cls}" d="M${x} ${y + 28}a13 13 0 0 1 1 -26a19 19 0 0 1 35 -6a15 15 0 0 1 26 8a12 12 0 0 1 2 24z"/>`;
+
+  const bolt = (x, y) =>
+    `<path class="fill" transform="translate(${x} ${y})" d="M-9 -30H11L0 -6H16L-17 32L-6 4H-21Z"/>`;
+
+  const blush = `<ellipse class="cheek" cx="-19" cy="17" rx="6" ry="3.5"/><ellipse class="cheek" cx="22" cy="17" rx="6" ry="3.5"/>`;
+
+  const dots = `<circle class="fill" cx="-11" cy="8" r="3.5"/><circle class="fill" cx="15" cy="8" r="3.5"/>`;
+
+  // 머리 안쪽에 들어가는 표정. 포즈와 조합해 쓴다.
+  const faces = {
+    smile: `${dots}<path class="thin" d="M-4 21Q3 28 10 21"/>${blush}`,
+    grin: `<path class="thin" d="M-17 7Q-10 -2 -3 7M9 7Q16 -2 23 7"/><path class="fill" d="M-5 18Q3 32 12 18Z"/>${blush}`,
+    closed: `<path class="thin" d="M-17 7Q-10 15 -3 7M9 7Q16 15 23 7"/><path class="thin" d="M-3 22Q3 27 9 22"/>${blush}`,
+    stars: `${sparkle(-9, 5, 8)}${sparkle(17, 5, 8)}<path class="fill" d="M-4 20Q3 33 11 20Z"/>${blush}`,
+    blank: `${dots}<path class="thin" d="M-2 24H8"/>`,
+    wry: `${dots}<path class="fine" d="M-19 -3L-6 -5M10 -7L23 -3"/><path class="thin" d="M-5 25Q0 20 4 24T12 22"/>`,
+    worried: `<path class="fine" d="M-20 -2L-7 -7M24 -2L11 -7"/>${dots}<path class="thin" d="M-5 25Q-1 21 3 25T11 25"/>`,
+    sad: `<path class="fine" d="M-20 -2L-7 -7M24 -2L11 -7"/>${dots}<path class="thin" d="M-4 27Q3 20 10 27"/>`,
+    cry: `<path class="fine" d="M-20 -2L-7 -7M24 -2L11 -7"/>${dots}<path class="thin" d="M-4 27Q3 20 10 27"/>${drop(-14, 13)}${drop(19, 13)}`,
+    angry: `<path class="thin" d="M-20 0L-6 6M26 0L12 6"/><circle class="fill" cx="-11" cy="11" r="3.5"/><circle class="fill" cx="17" cy="11" r="3.5"/><path class="thin" d="M-6 27L0 22L5 27L11 22"/>`,
+    furious: `<path d="M-21 -2L-5 7M27 -2L11 7"/><circle class="fill" cx="-11" cy="12" r="3"/><circle class="fill" cx="17" cy="12" r="3"/><path class="fine white" d="M-8 20H14V31H-8ZM-1 20V31M7 20V31M-8 25H14"/>`,
+    sleepy: `<path class="thin" d="M-17 6H-3M9 6H23"/><path class="fill" d="M-13 6Q-10 13 -7 6ZM13 6Q16 13 19 6Z"/><path class="thin" d="M-2 25H8"/>`,
+    asleep: `<path class="thin" d="M-16 8H-4M10 8H22"/><ellipse class="fine white" cx="3" cy="25" rx="3.5" ry="4.5"/>`,
+    dizzy: `<path class="fine" d="M-11 8m-7 0a7 7 0 1 1 3 5a4 4 0 1 1 4 -6M15 8m-7 0a7 7 0 1 1 3 5a4 4 0 1 1 4 -6"/><path class="thin" d="M-5 26Q-1 22 3 26T11 26"/>`,
+  };
+
+  // 모든 장면에 같은 인물이 나오도록 머리와 옷깃을 공유한다.
+  const head = ([x, y, rot], face) => `
+    <g transform="translate(${x} ${y}) rotate(${rot}) scale(1.2)">
+      <path class="white" d="M-31 -12C-33 16 -16 38 2 38C20 38 33 16 31 -12Z"/>
+      ${face}
+      <path class="fill" d="M-37 8C-46 -30 -22 -52 4 -51C32 -52 46 -26 37 10C35 16 31 14 31 4C31 -6 28 -12 22 -18C10 -11 -8 -11 -20 -20C-27 -12 -31 -4 -31 6C-31 14 -35 14 -37 8Z"/>
+      <path class="cut" d="M-18 -38C-24 -32 -27 -26 -28 -20M10 -42C18 -40 26 -32 29 -24"/>
+    </g>`;
+
+  const collar = (x, y) => `
+    <path class="white" d="M${x - 11} ${y}V${y + 18}L${x} ${y + 30}L${x + 11} ${y + 18}V${y}Z"/>
+    <path class="white" d="M${x - 12} ${y + 12}L${x - 27} ${y + 22}L${x - 9} ${y + 44}L${x} ${y + 30}Z"/>
+    <path class="white" d="M${x + 12} ${y + 12}L${x + 27} ${y + 22}L${x + 9} ${y + 44}L${x} ${y + 30}Z"/>`;
+
+  const torso = `
+    <path class="white" d="M130 140C118 150 116 190 118 226C140 232 180 232 204 224C208 190 206 150 194 140C180 132 144 132 130 140Z"/>
+    <path class="thin" d="M160 166C162 186 160 206 162 228"/>`;
+
+  const standLegs = `
+    <path class="fill" d="M124 222L120 300H152L160 246L168 300H200L198 220Z"/>
+    <path class="white" d="M120 300C112 306 108 312 110 316H150L152 300Z"/>
+    <path class="white" d="M200 300C208 306 212 312 210 316H170L168 300Z"/>`;
+
+  const raisedArms = `
+    <path class="white" d="M132 142C114 130 98 104 84 78L104 68C114 88 126 104 142 118Z"/>
+    <path class="white" d="M84 78C76 70 76 56 86 52C96 48 106 58 104 68Z"/>
+    <path class="white" d="M192 142C210 130 226 104 240 78L220 68C210 88 198 104 182 118Z"/>
+    <path class="white" d="M240 78C248 70 248 56 238 52C228 48 218 58 220 68Z"/>`;
+
+  const walkBody = `
+    <path class="fill" d="M126 214C114 240 102 264 88 288L118 302C134 282 150 262 164 240C178 262 196 284 208 304L238 292C226 266 212 240 200 212Z"/>
+    <path class="white" d="M88 288C80 296 72 304 66 308C74 314 104 316 116 310L118 302Z"/>
+    <path class="white" d="M238 292C246 298 256 302 262 308C254 314 224 316 214 312L208 304Z"/>
+    <path class="white" d="M130 138C118 150 116 186 118 218C140 226 180 226 204 216C208 186 206 150 194 138C180 130 144 130 130 138Z"/>
+    <path class="thin" d="M160 164C162 184 160 200 162 220"/>`;
+
+  const desk = `
+    <path class="thin" d="M60 244V316M264 244V316"/>
+    <path class="fill" d="M36 232H288V244H36Z"/>`;
+
+  const sitPose = (item) => ({
+    head: [152, 90, -6],
+    art: `
+      <path class="thin" d="M24 300H296"/>
+      <path class="white" d="M50 282C50 262 96 262 156 262C216 262 262 262 262 282C262 300 216 300 156 300C96 300 50 300 50 282Z"/>
+      <path class="fill" d="M70 262C72 240 96 232 128 234L176 234C212 232 236 240 240 262C240 276 214 280 180 276L154 268L130 276C96 280 70 278 70 262Z"/>
+      <path class="white" d="M198 258C214 254 230 262 228 270C220 280 204 278 192 272Z"/>
+      <path class="white" d="M112 258C96 254 80 262 82 270C90 280 106 278 118 272Z"/>
+      <path class="white" d="M112 150C100 170 96 205 100 238L204 238C208 205 202 170 190 150C176 140 128 140 112 150Z"/>
+      <path class="white" d="M112 152C92 170 90 200 108 212L140 204L138 188L118 190C118 176 124 168 130 160Z"/>
+      <path class="white" d="M190 152C210 170 212 200 194 212L162 204L164 188L184 190C184 176 178 168 172 160Z"/>
+      ${item}
+      <path class="white" d="M126 192C132 184 142 186 144 194C142 204 132 206 126 200Z"/>
+      <path class="white" d="M178 192C172 184 162 186 160 194C162 204 172 206 178 200Z"/>
+      ${collar(152, 118)}`,
+  });
+
+  // 포즈. head는 머리 위치와 기울기, top은 머리보다 앞에 그려야 하는 부분이다.
+  const poses = {
+    sofa: {
+      head: [94, 170, -72],
+      art: `
+        <path class="fill" d="M64 268h20l-4 28h-12zM240 268h20l-4 28h-12z"/>
+        <path class="thin" d="M18 298H304"/>
+        <path class="white" d="M52 138C52 118 70 112 90 112H240C262 112 274 122 274 142V212H52Z"/>
+        <path d="M284 146C288 180 288 220 284 262"/>
+        <path class="white" d="M36 164C36 150 46 142 60 142C74 142 82 152 82 166V262C82 268 78 272 70 272H48C40 272 36 268 36 260Z"/>
+        <path class="white" d="M246 164C246 150 256 142 268 142C282 142 288 152 288 166V260C288 268 284 272 276 272H256C250 272 246 268 246 262Z"/>
+        <path class="white" d="M78 208H250V256C250 266 244 270 236 270H90C82 270 78 266 78 256Z"/>
+        <path class="thin" d="M96 234H232"/>
+        <path class="fill" d="M112 208C124 166 206 158 248 190C258 198 256 206 246 208Z"/>
+        <path class="cut" d="M146 186L136 206M178 176L172 206M210 178L208 206"/>
+        <path class="white" d="M244 180C254 174 268 178 272 186C272 196 258 202 248 202Z"/>
+        <path class="white" d="M106 196C100 220 98 244 100 268L120 268C120 246 124 226 132 204Z"/>
+        <path class="white" d="M100 268C96 280 100 290 110 290C120 290 122 278 120 268Z"/>`,
+    },
+    floor: {
+      head: [98, 246, -84],
+      art: `
+        <path class="thin" d="M14 302H310"/>
+        <path class="fill" d="M196 258C226 254 262 268 288 284L284 300H196Z"/>
+        <path class="white" d="M284 276C298 272 312 280 310 292C306 302 292 300 282 300Z"/>
+        <path class="white" d="M112 300C112 262 130 250 170 252C202 254 208 276 208 300Z"/>
+        <path class="thin" d="M140 276H196"/>`,
+      top: `
+        <path class="white" d="M130 272C104 280 76 288 44 288L44 300H130Z"/>
+        <path class="white" d="M44 288C34 288 30 294 32 298C34 302 40 302 44 300Z"/>`,
+    },
+    hug: {
+      head: [172, 126, 12],
+      art: `
+        <path class="thin" d="M30 300H292"/>
+        <path class="white" d="M108 170C80 200 76 258 94 292H176L170 166C146 150 124 152 108 170Z"/>
+        <path class="fill" d="M92 292C120 240 164 188 200 172C218 166 232 176 230 194L218 284H186L190 218C164 242 142 268 136 292Z"/>
+        <path class="white" d="M186 284H218C230 288 240 292 240 298C240 302 232 302 224 302H188Z"/>
+        <path class="white" d="M118 170C132 194 164 214 204 212L208 236C158 242 118 222 98 186Z"/>
+        <path class="white" d="M202 212C216 208 226 216 224 226C220 236 208 238 202 234Z"/>`,
+    },
+    desk: {
+      head: [162, 158, 8],
+      art: `
+        ${desk}
+        <path class="white" d="M108 232C104 198 124 174 162 174C200 174 220 198 216 232Z"/>`,
+      top: `
+        <path class="white" d="M90 232C90 212 120 204 162 204C204 204 234 212 234 232Z"/>
+        <path class="thin" d="M162 208V230"/>`,
+    },
+    work: {
+      head: [162, 112, 0],
+      art: `
+        ${desk}
+        <path class="white" d="M104 232C102 176 126 156 162 156C198 156 222 176 220 232Z"/>
+        ${collar(162, 142)}`,
+      top: `
+        <path class="fill" d="M120 176H204L212 226H112Z"/>
+        ${sparkle(162, 200, 8).replace('class="fill"', 'class="white"')}
+        <path class="white" d="M98 226H226V232H98Z"/>`,
+    },
+    "sit:mug": sitPose(`
+      <path class="white" d="M134 172H170V200Q170 208 162 208H142Q134 208 134 200Z"/>
+      <path class="thin" d="M146 166C142 160 150 156 146 150M158 166C154 160 162 156 158 150"/>`),
+    "sit:book": sitPose(`
+      <path class="white" d="M116 176L152 186L188 176V210L152 220L116 210Z"/>
+      <path class="thin" d="M152 186V220"/>`),
+    "sit:phone": sitPose(`
+      <path class="fill" d="M138 168H166V210H138Z"/>
+      <path class="cut" d="M144 176H160"/>`),
+    stand: {
+      head: [162, 86, 0],
+      art: `
+        ${standLegs}
+        ${torso}
+        <path class="white" d="M130 142C112 150 104 190 102 228L122 232C124 204 130 180 140 164Z"/>
+        <path class="white" d="M102 228C98 238 104 246 112 246C120 246 124 240 122 232Z"/>
+        <path class="white" d="M194 142C212 150 220 190 222 228L202 232C200 204 194 180 184 164Z"/>
+        <path class="white" d="M222 228C226 238 220 246 212 246C204 246 200 240 202 232Z"/>
+        ${collar(162, 122)}`,
+    },
+    cross: {
+      head: [160, 96, 0],
+      art: `
+        <g transform="translate(0 16)">
+          <path class="thin" d="M112 262L106 300M210 262L216 300M160 262V300"/>
+          <path class="fill" d="M116 132C98 142 86 170 84 196C90 210 100 212 108 212L106 262H214L212 212C222 212 230 210 236 196C234 170 222 142 204 132C188 124 132 124 116 132Z"/>
+          <path class="white" d="M146 130H174L180 178H140ZM138 216H182L186 262H134Z"/>
+          <path class="thin" d="M160 150V176M160 218V262"/>
+          <path class="stroke-white" d="M92 182C124 172 176 172 214 190L208 214C176 200 130 202 98 210Z"/>
+          <path class="stroke-white" d="M228 182C196 172 144 176 110 196L116 218C150 204 190 204 224 212Z"/>
+          <path class="white" d="M210 190C220 184 230 192 228 202C224 212 214 214 208 208Z"/>
+          <path class="white" d="M112 196C100 192 92 200 96 210C100 220 112 220 118 214Z"/>
+          ${collar(160, 108)}
+        </g>`,
+    },
+    headhold: {
+      head: [162, 86, 0],
+      art: `
+        ${standLegs}
+        ${torso}
+        <path class="white" d="M130 142C104 140 86 116 96 84L116 88C112 104 124 116 142 120Z"/>
+        <path class="white" d="M194 142C220 140 238 116 228 84L208 88C212 104 200 116 182 120Z"/>
+        ${collar(162, 122)}`,
+      top: `
+        <path class="white" d="M100 88C96 74 108 66 118 70C126 76 122 90 112 94Z"/>
+        <path class="white" d="M224 88C228 74 216 66 206 70C198 76 202 90 212 94Z"/>`,
+    },
+    walk: {
+      head: [158, 82, 5],
+      art: `
+        ${walkBody}
+        <path class="white" d="M130 146C112 156 98 180 88 200L108 208C116 190 126 176 140 170Z"/>
+        <path class="white" d="M88 200C82 210 88 218 98 218C106 216 110 212 108 208Z"/>
+        <path class="white" d="M194 146C212 156 226 180 236 200L216 208C208 190 198 176 184 170Z"/>
+        <path class="white" d="M236 200C242 210 236 218 226 218C218 216 214 212 216 208Z"/>
+        ${collar(160, 112)}`,
+    },
+    "walk:letter": {
+      head: [158, 82, 5],
+      art: `
+        ${walkBody}
+        <path class="white" d="M196 146C216 140 236 120 244 94L222 86C216 104 204 114 188 120Z"/>
+        <path class="white" d="M228 92C224 82 228 72 238 70C248 70 254 78 250 94Z"/>
+        <g transform="rotate(10 244 50)">
+          <path class="white" d="M216 30H278V72H216Z"/>
+          <path class="thin" d="M216 30L247 54L278 30"/>
+        </g>
+        ${heart(245, 60, .45)}
+        <path class="white" d="M130 146C108 156 98 180 110 194L150 184L146 168L128 170C130 162 134 156 140 150Z"/>
+        <path class="white" d="M150 184C158 186 162 178 156 170C152 166 148 166 146 168Z"/>
+        ${collar(160, 112)}`,
+    },
+    run: {
+      head: [166, 82, 8],
+      art: `
+        <path class="fill" d="M126 214C120 240 96 256 66 262L72 292C112 288 146 268 166 242C180 258 204 270 228 300L254 282C232 250 216 228 200 212Z"/>
+        <path class="white" d="M66 262C56 266 50 276 52 288C58 296 70 294 72 292Z"/>
+        <path class="white" d="M254 282C262 290 270 296 274 304C266 312 240 316 230 310L228 300Z"/>
+        <path class="white" d="M130 138C118 150 116 186 118 218C140 226 180 226 204 216C208 186 206 150 194 138C180 130 144 130 130 138Z"/>
+        <path class="thin" d="M160 164C162 184 160 200 162 220"/>
+        <path class="white" d="M130 146C108 150 92 166 84 186L104 198C112 184 126 172 142 166Z"/>
+        <path class="white" d="M84 186C76 194 80 206 90 206C100 206 106 200 104 198Z"/>
+        <path class="white" d="M194 146C216 150 232 168 246 156L236 136C226 142 214 130 196 122Z"/>
+        <path class="white" d="M246 156C256 150 254 136 244 132C236 132 234 134 236 136Z"/>
+        ${collar(164, 112)}`,
+    },
+    cheer: {
+      head: [162, 86, 0],
+      art: `${standLegs}${torso}${raisedArms}${collar(162, 122)}`,
+    },
+    jump: {
+      head: [162, 86, -4],
+      art: `
+        <path class="fill" d="M124 222C116 246 108 268 100 290L132 298C140 276 150 258 162 244C176 262 198 276 226 280L234 252C212 248 204 238 198 220Z"/>
+        <path class="white" d="M100 290C94 298 88 304 84 310C92 316 116 314 126 312C130 308 132 304 132 298Z"/>
+        <path class="white" d="M232 252C244 250 258 254 268 262C272 268 266 272 256 272C248 276 238 280 226 280Z"/>
+        ${torso}${raisedArms}${collar(162, 122)}`,
+    },
+  };
+
+  // 인물 주변에 놓는 소품. 모두 (0, 0)을 중심으로 그린다.
+  const props = {
+    sun: `<circle class="fill" r="14"/><path d="M0 -24v-8M0 24v8M-24 0h-8M24 0h8M-17 -17l-6 -6M17 -17l6 -6M-17 17l-6 6M17 17l6 6"/>`,
+    moon: `<path class="fill" d="M-4 -26A24 24 0 1 0 20 10A19 19 0 0 1 -4 -26Z"/>`,
+    stars: `${sparkle(-18, -8, 10)}${sparkle(12, -22, 7)}${sparkle(20, 14, 12)}`,
+    sparkle: `${sparkle(-14, -10, 14)}${sparkle(20, -20, 8)}${sparkle(12, 20, 10)}`,
+    cloud: cloud(-32, -14, "white"),
+    rain: `${cloud(-32, -24, "fill")}${drop(-22, 14)}${drop(0, 20)}${drop(22, 14)}`,
+    bolt: bolt(0, 0),
+    thunder: `${bolt(-14, -4)}${bolt(20, 10)}`,
+    scribble: `<path d="M-32 18C-44 2 -20 -14 -8 0C0 10 -18 16 -20 6C-22 -8 8 -16 18 -2C26 10 8 16 6 6C4 -6 26 -10 34 10"/>`,
+    hearts: `${heart(-14, -8, 1.1)}${heart(18, -18, .7)}${heart(14, 16, .8)}`,
+    notes: `<ellipse class="fill" cx="-14" cy="14" rx="7" ry="5"/><path d="M-8 14V-16L18 -22V8"/><ellipse class="fill" cx="12" cy="8" rx="7" ry="5"/>`,
+    zzz: `${zzz(-24, 0, 12)}${zzz(-4, -22, 16)}`,
+    battery0: `<path class="thin" d="M-24 -11h44v22h-44zM20 -5h5v10h-5z"/><path class="fill" d="M-20 -7h5v14h-5z"/>`,
+    battery1: `<path class="thin" d="M-24 -11h44v22h-44zM20 -5h5v10h-5z"/><path class="fill" d="M-20 -7h20v14h-20z"/>`,
+    clock: `<circle class="white" r="24"/><path class="thin" d="M0 -14V0L10 6"/>`,
+    papers: `<path class="white" d="M-24 -20H16L24 -8V24H-24Z"/><path class="thin" d="M-14 -6H12M-14 4H14M-14 14H8"/>`,
+    coffee: `<path class="white" d="M-16 -6H16V14Q16 24 6 24H-6Q-16 24 -16 14Z"/><path class="thin" d="M16 0H22Q28 0 28 7Q28 14 18 14M-6 -14C-10 -20 -2 -24 -6 -30M6 -14C2 -20 10 -24 6 -30"/>`,
+    plant: `<path d="M-2 -6C-2 -30 -10 -44 -24 -52M0 -6C2 -30 10 -46 24 -56"/><path class="white" d="M-10 -24C-28 -24 -36 -36 -38 -50C-22 -50 -10 -40 -10 -24ZM10 -30C10 -48 20 -58 34 -60C36 -44 26 -32 10 -30Z"/><path class="fill" d="M-20 -6H20L14 34H-14Z"/>`,
+    flowers: `<path d="M-12 32V0M14 32V-12"/><circle class="white" cx="-12" cy="-6" r="11"/><circle class="fill" cx="-12" cy="-6" r="4"/><circle class="white" cx="14" cy="-18" r="11"/><circle class="fill" cx="14" cy="-18" r="4"/>`,
+    cat: `<path d="M16 26q16 0 14 -16"/><path class="fill" d="M-16 30C-20 8 -16 -4 -16 -18L-8 -10H8L16 -18C16 -4 20 8 16 30Z"/><path class="cut" d="M-6 0v4M6 0v4"/>`,
+    wind: `<path class="thin" d="M-30 -12H8a8 8 0 1 0 -8 -8M-30 2H20a8 8 0 1 1 -8 8M-22 16H4"/>`,
+    sweat: `${drop(-12, -16)}${drop(10, -2)}${drop(-6, 14)}`,
+    fire: `<path class="fill" d="M0 30C-22 30 -26 10 -14 -6C-12 2 -8 2 -6 -2C-8 -14 0 -24 8 -30C6 -18 24 -4 20 14C18 24 10 30 0 30Z"/><path class="cut" d="M0 24C-8 22 -8 12 0 4C2 10 8 14 6 20"/>`,
+    balloon: `<path class="white" d="M0 -30C16 -30 22 -16 16 -4C12 4 4 8 0 10C-4 8 -12 4 -16 -4C-22 -16 -16 -30 0 -30Z"/><path class="thin" d="M0 10C-6 18 6 24 0 32"/>`,
+  };
+
+  const slots = {
+    TL: [52, 62],
+    TR: [348, 62],
+    BL: [46, 282],
+    BR: [356, 282],
+  };
+
+  // 결과 100가지. [이름, 5·7·5 세 줄 문장, "포즈 표정 소품@위치"]
+  // 순서는 기쁨 5단계 > 에너지 5단계 > 스트레스 4단계다.
+  const results = [
+    // 기쁨 매우 낮음
+    ["텅 빈 하루", "눈물도 파업\n마음도 자리 비움\n숨만 쉬는 중", "floor blank moon@TL"],
+    ["가라앉는 마음", "침대 속으로\n나는 오늘도 잠수\n구조는 사양", "floor sad rain@TR"],
+    ["방전된 마음", "힘들다 말할\n힘도 없어 누웠다\n이불만 안다", "sofa sad battery0@TR rain@TL"],
+    ["한계선 위", "배터리 일 퍼\n절전 모드로 출근\n퇴근은 언제", "floor cry battery0@TL thunder@TR"],
+
+    ["조용한 우울", "이유는 없다\n그냥 좀 그런 오후\n밥은 먹었어", "hug blank cloud@TR"],
+    ["혼자인 밤", "폰을 켰다 끔\n연락 올 데가 없네\n광고 문자뿐", "hug sad moon@TL stars@TR"],
+    ["소리 없는 눈물", "샤워기 틀고\n몰래 우는 어른이\n나였구나 참", "hug cry rain@TR"],
+    ["버거운 무게", "어깨 위에는\n곰 세 마리 앉았다\n엄마 곰까지", "desk cry papers@BR rain@TL"],
+
+    ["무표정한 하루", "웃지도 않고\n울지도 않는 얼굴\n증명사진 급", "stand blank cloud@TL"],
+    ["비 맞는 마음", "우산은 집에\n기분도 집에 두고\n몸만 출근함", "walk sad rain@TR"],
+    ["삼킨 말들", "네, 알겠어요\n속마음은 쌍욕 중\n표정은 미소", "stand worried scribble@TR"],
+    ["터지기 직전", "건드리지 마\n눈물 나고 화 난다\n둘 다 터진다", "headhold cry thunder@TR scribble@TL"],
+
+    ["식어 버린 마음", "그러시든가\n아, 네, 네, 그러세요\n관심 없어요", "cross blank wind@TR"],
+    ["날 선 하루", "말 걸지 마라\n네 숨소리도 밉다\n내 것도 밉다", "cross worried bolt@TR"],
+    ["꾹 참는 화", "참을 인 세 번\n네 번째는 못 참아\n이름 적는다", "cross angry scribble@TR"],
+    ["폭발한 화", "참았다 어제\n그제도 또 참았다\n오늘은 없다", "cross furious thunder@TR scribble@TL"],
+
+    ["갈 곳 없는 기운", "힘은 넘친다\n쓸 곳은 딱히 없다\n방 청소 할까", "run blank wind@TL"],
+    ["도망치고 싶은 날", "사표 대신에\n운동화 끈을 맨다\n어디로 뛰지", "run sad wind@TL rain@TR"],
+    ["끓어오르는 힘", "키보드 소리\n오늘은 천둥 같다\n메일 보낸다", "headhold angry fire@BR bolt@TR"],
+    ["화산 폭발", "누구야 나와\n오늘 전부 다 말해\n(퇴사는 내일)", "cheer furious fire@BR thunder@TR scribble@TL"],
+
+    // 기쁨 낮음
+    ["느린 회복", "어제보다는\n한 입 더 먹었어요\n장하다 나야", "sofa sleepy cloud@TR"],
+    ["뒤척이는 밤", "새벽 세 시에\n왜 그 말을 했을까\n십 년 전 일을", "sofa worried moon@TL clock@TR"],
+    ["감기는 눈꺼풀", "모니터 앞에\n눈 뜨고 자는 기술\n자격증 없음", "desk sleepy papers@BR clock@TR"],
+    ["풀리지 않는 피로", "주말 내내 잠\n자고 일어났는데\n월요일이네", "floor dizzy battery0@TR papers@TL"],
+
+    ["말랑한 쓸쓸함", "치킨 시켰다\n다리 둘 다 내 거다\n조금 쓸쓸해", "sit:mug wry cloud@TR"],
+    ["흐린 오후", "날씨 탓이다\n아니면 월요일 탓\n내 탓은 아님", "hug blank cloud@TL wind@TR"],
+    ["쌓이는 한숨", "한숨을 쉰다\n옆 사람도 따라 쉼\n사무실 합창", "desk worried clock@TR"],
+    ["밀려오는 일", "일 끝냈더니\n일이 새끼를 쳤다\n번식력 대단", "desk dizzy papers@BR papers@BL thunder@TR"],
+
+    ["그럭저럭", "그럭저럭 뭐\n잘 지내냐 물으면\n그럭저럭 뭐", "stand wry cloud@TR"],
+    ["마음에 걸리는 일", "아까 그 카톡\n읽씹인가 바쁜가\n아직도 본다", "walk worried cloud@TL"],
+    ["억지 미소", "괜찮습니다\n진짜 괜찮습니다\n안 괜찮아요", "stand wry sweat@TR scribble@TL"],
+    ["엉킨 실타래", "할 일 뭐였지\n적어둔 곳 뭐였지\n나 뭐였더라", "headhold worried scribble@TR"],
+
+    ["털어내는 중", "기분 더러워\n일단 나가서 걷자\n빵집 쪽으로", "walk blank wind@TR"],
+    ["찜찜한 오늘", "가스 껐던가\n문은 잠그고 왔나\n다시 올라감", "walk worried clock@TR"],
+    ["투덜거리는 날", "왜 나만 시켜\n왜 또 나인데 진짜\n네, 할게요 뭐", "cross wry scribble@TL"],
+    ["곤두선 신경", "씹는 소리에\n전생의 원수 본다\n옆자리 김 씨", "cross angry thunder@TR"],
+
+    ["기분 전환 질주", "일단 뛰었다\n우울이 더 빨랐다\n무릎만 아파", "run wry wind@TR"],
+    ["바쁘게 숨기기", "바쁘면 된다\n생각할 틈이 없게\n서랍 정리 중", "run worried clock@TR"],
+    ["짜증의 연료", "짜증은 연료\n연비가 아주 좋다\n오늘 완주함", "run angry scribble@TR"],
+    ["브레이크가 필요해", "경적을 울려\n인생에 대고 울려\n비켜 나 간다", "run furious thunder@TR clock@TL"],
+
+    // 기쁨 보통
+    ["조용한 충전", "충전 중이다\n코드 뽑지 마시오\n사십 퍼센트", "sofa closed battery1@TR"],
+    ["이불이 부르는 날", "이불이 말해\n오늘은 나가지 마\n네, 따릅니다", "sofa sleepy moon@TL"],
+    ["졸음과의 싸움", "회의 중 졸음\n끄덕끄덕 동의 중\n나도 모르게", "desk sleepy coffee@BR clock@TL"],
+    ["커피로 버티기", "세 잔째 커피\n심장만 일하는 중\n눈은 퇴근함", "desk dizzy coffee@BR coffee@BL"],
+
+    ["느긋한 오후", "구름 구경 중\n쟤도 노는 중이네\n동료가 생김", "sit:mug closed sun@TR plant@BR"],
+    ["멍 때리는 시간", "멍 때리는 중\n뇌는 점심 먹으러\n아직 안 왔다", "sit:mug blank cloud@TR"],
+    ["미뤄둔 일", "내일 할 거다\n어제의 내 말이다\n내일의 내게", "sit:phone worried papers@BR"],
+    ["숨 고를 틈", "화장실 칸이\n내 유일한 휴양지\n오 분 남았다", "desk worried clock@TR papers@BR sweat@TL"],
+
+    ["평범해서 좋은 날", "별일 없었다\n이 말 듣기 어렵다\n오늘은 평타", "stand smile sun@TR"],
+    ["보통의 하루", "점심 뭐 먹지\n저녁은 또 뭐 먹지\n인생 큰 고민", "walk smile cloud@TR"],
+    ["하나씩 지우는 중", "할 일 지우고\n할 일 세 개 더 적음\n왜 늘어나지", "stand worried papers@BR"],
+    ["머릿속 과부하", "머릿속 탭이\n마흔 개 열려 있다\n음악은 어디", "headhold dizzy scribble@TL clock@TR"],
+
+    ["가벼운 발걸음", "오늘은 왠지\n횡단보도가 초록\n인생 풀린다", "walk smile wind@TL"],
+    ["시동 거는 중", "커피 마셨다\n뭐든 할 것 같은데\n십 분만 쉬자", "stand grin sun@TL"],
+    ["바짝 집중", "눈 깜빡 안 함\n지금 내가 일 잘함\n아무도 안 봄", "work blank clock@TR"],
+    ["마감 앞에서", "마감 세 시간\n나의 잠재력 깨다\n왜 이제 깨냐", "work worried clock@TR papers@BR sweat@TL"],
+
+    ["들썩이는 몸", "이유가 없다\n어깨가 먼저 춘다\n나도 모른다", "run grin notes@TR"],
+    ["넘치는 추진력", "일단 결제함\n생각은 나중에 함\n택배 오는 중", "cheer grin bolt@TR"],
+    ["긴장 속 질주", "손에 땀 쥐고\n계단을 두 칸씩 뜀\n왜 뛰는 거지", "run worried bolt@TR wind@TL"],
+    ["과열 주의", "팬 돌아간다\n노트북 말고 나의\n머리 쪽에서", "work dizzy fire@BR thunder@TR"],
+
+    // 기쁨 높음
+    ["포근한 나른함", "햇살이 좋아\n고양이와 눕는다\n털도 안 고름", "sofa closed sun@TL cat@BR"],
+    ["기분 좋은 피로", "오늘 좀 했다\n샤워 후 이불 위에\n천국이 있다", "sofa smile zzz@TR"],
+    ["좋아서 지친 날", "덕질 하다가\n새벽 네 시가 됐다\n후회는 없다", "desk wry coffee@BR hearts@TR"],
+    ["웃으며 버티기", "입은 웃는다\n허리는 울고 있다\n파스 붙인다", "sofa wry battery0@TR clock@TL"],
+
+    ["평온한 오후", "차 마시는 중\n세상아 어디 가니\n나는 안 간다", "sit:mug closed plant@BR"],
+    ["잔잔한 만족", "오늘 나 좀 됨\n책을 열 장 읽었다\n사진도 찍음", "sit:book smile plant@BR"],
+    ["작은 걱정 하나", "다 좋은데 딱\n통장 잔고 빼고는\n다 좋습니다", "sit:phone wry cloud@TL"],
+    ["미소 뒤의 긴장", "네 좋습니다\n발표 전 화장실만\n세 번째 간다", "work wry sweat@TL"],
+
+    ["산뜻한 하루", "머리 잘 됐다\n오늘 사진 찍어라\n단 한 번이다", "stand smile sun@TR flowers@BR"],
+    ["괜찮은 하루", "나쁘지 않네\n이 정도면 괜찮지\n최고의 칭찬", "walk smile sun@TR"],
+    ["해볼 만한 긴장", "살짝 떨린다\n이건 내가 해본 일\n아마도 그럼", "work smile clock@TR"],
+    ["벅차도 괜찮아", "할 일 산더미\n그래도 밥은 먹자\n곱빼기로 뭐", "headhold wry papers@BR"],
+
+    ["산책하기 좋은 날", "날씨 미쳤다\n퇴근길 한 정거장\n일찍 내린다", "walk grin sun@TR flowers@BR"],
+    ["상쾌한 리듬", "이어폰 꽂고\n뮤비 주인공 걸음\n사실 출근길", "walk grin notes@TR"],
+    ["기분 좋은 떨림", "보낼까 말까\n썼다 지운 세 글자\n잘 자 보냈다", "walk:letter wry hearts@TL"],
+    ["설렘 반 긴장 반", "잘하고 싶다\n심장이 먼저 나가\n나는 뒤따라", "stand stars sweat@TL bolt@TR"],
+
+    ["신나는 오늘", "주말이 왔다\n아직 금요일 아침\n벌써 신났다", "jump grin sparkle@TR"],
+    ["될 것 같은 날", "오늘의 나는\n거울 보고 놀랐다\n잘생김 주의", "cheer grin sparkle@TL"],
+    ["두근두근", "택배 왔대요\n엘리베이터 오라\n계단으로 감", "run stars hearts@TR"],
+    ["무대 직전", "곧 내 차례다\n물 세 번 마셨는데\n목이 또 탄다", "cheer stars bolt@TR sweat@TL"],
+
+    // 기쁨 매우 높음
+    ["완벽한 휴식", "아무것도 안\n했는데 행복하다\n이게 맞구나", "sofa closed hearts@TR cat@BR"],
+    ["행복한 낮잠", "낮잠 잤더니\n꿈에서 고기 먹음\n베개가 젖음", "sofa asleep sun@TL zzz@TR"],
+    ["달콤한 피곤함", "많이 웃었다\n광대가 좀 아프다\n산재 신청각", "sofa smile sparkle@TR coffee@BR"],
+    ["행복한 만큼 지친 날", "행복합니다\n눈 감으면 바로 잠\n코 고는 행복", "desk smile hearts@TR battery0@TL"],
+
+    ["충만한 고요", "아무 말 없이\n이불 속 귤 까먹기\n여기가 천국", "sit:book closed hearts@TR"],
+    ["따뜻한 마음", "엄마 전화에\n밥 먹었어 네 네 네\n코끝 찡하네", "sit:mug smile hearts@TL plant@BR"],
+    ["소중해서 하는 걱정", "강아지 자면\n숨 쉬는지 확인함\n오늘만 네 번", "sit:phone smile hearts@TR cloud@TL"],
+    ["벅찬 마음", "좋은 일 많아\n불안해지기 시작\n곧 뭐 터지나", "work smile sparkle@TL clock@TR"],
+
+    ["활짝 갠 날", "하늘 좀 봐라\n내 기분이 저렇다\n구름도 퇴근", "stand grin sun@TR"],
+    ["새어 나오는 미소", "혼자 웃는다\n버스 창에 비친 나\n옆자리 떠남", "stand grin hearts@TR flowers@BR"],
+    ["좋은 긴장", "예쁘게 입고\n거울을 열 번 봤다\n오늘은 된다", "stand smile sparkle@TR sweat@TL"],
+    ["기쁘게 바쁜 하루", "축하 전화에\n카톡 불이 났어요\n엄지가 아파", "headhold grin sparkle@TR clock@TL"],
+
+    ["반짝이는 날", "출근길 참새\n너도 참 귀엽구나\n내가 이상해", "walk stars sparkle@TR"],
+    ["콧노래 나는 날", "콧노래 난다\n설거지도 재밌다\n큰일 났구나", "walk grin notes@TL flowers@BR"],
+    ["설레는 준비", "소식 왔어요\n아직 아무도 몰라\n입 근질근질", "walk:letter stars hearts@TL"],
+    ["두근대는 결전", "이길 것 같다\n응원 팀 구 회 말에\n이미 건배함", "cheer grin bolt@TL fire@BR"],
+
+    ["날아갈 듯한 날", "월급 들어옴\n땅에 발이 안 닿아\n곧 나갑니다", "jump stars balloon@TR sparkle@TL"],
+    ["축제 같은 날", "로또 아니고\n그냥 오늘 좋은 날\n폭죽 터진다", "jump grin notes@TR balloon@TL"],
+    ["달려가는 심장", "좋아서 뛴다\n이 심장 말릴 사람\n아무도 없다", "run stars hearts@TL sparkle@TR"],
+    ["짜릿한 순간", "소리 지른다\n이불 속에서 크게\n아이 좋아라", "cheer stars thunder@TR sparkle@TL"],
+  ];
+
+  // 게이지 구간. cuts 값부터 다음 단계로 올라간다.
+  const levels = {
+    joy: { name: "기쁨", cuts: [20, 40, 60, 80], words: ["매우 낮음", "낮음", "보통", "높음", "매우 높음"], emojis: ["😭", "🙁", "😐", "🙂", "😄"] },
+    energy: { name: "에너지", cuts: [20, 40, 60, 80], words: ["매우 낮음", "낮음", "보통", "높음", "매우 높음"], emojis: ["😴", "🥱", "🚶", "🏃", "⚡"] },
+    stress: { name: "스트레스", cuts: [20, 40, 70], words: ["매우 낮음", "낮음", "보통", "높음"], emojis: ["☀️", "⛅", "🌧️", "⛈️"] },
+  };
+
+  const chooseEl = document.getElementById("choose");
+  const gaugesEl = document.getElementById("gauges");
+  const gaugeInputs = gaugesEl.querySelectorAll("input");
+  const faceEl = document.getElementById("face");
+  const resultEl = document.getElementById("result");
+  const shareEl = document.getElementById("share");
+  const illustrationEl = document.getElementById("illustration");
+  const nameEl = document.getElementById("name");
+  const sentenceEl = document.getElementById("sentence");
+  const reasonEl = document.getElementById("reason");
+  const signEl = document.getElementById("sign");
+  const titleEl = document.querySelector("h1");
+
+  const levelOf = (input) =>
+    levels[input.id].cuts.filter((cut) => Number(input.value) >= cut).length;
+
+  // 세 게이지의 단계로 결과 번호를 정한다. 같은 구간이면 항상 같은 결과가 나온다.
+  function judgeResult() {
+    const [joy, energy, stress] = [...gaugeInputs].map(levelOf);
+    return joy * 20 + energy * 4 + stress;
+  }
+
+  const stepsOf = (index) => ({ joy: Math.floor(index / 20), energy: Math.floor(index / 4) % 5, stress: index % 4 });
+
+  // 자세에 따라 그림과 시가 가장 균형 있게 놓이는 레이아웃을 고른다.
+  // 가로로 넓은 장면은 그림 위·시 아래, 서 있는 인물은 인물 왼쪽 아래·시 오른쪽 위, 앉은 인물은 인물 오른쪽 아래·세로 시 왼쪽 위.
+  const layoutOf = (poseId) =>
+    poseId.startsWith("sit") ? "seated" : ["sofa", "floor", "hug", "desk", "work"].includes(poseId) ? "wide" : "side";
+
+  // 포스터(400×600) 안에서 장면을 놓을 자리, 산 능선 높이, 가지·해·새가 들어갈 자리
+  const layouts = {
+    wide: { scene: "translate(20 22) scale(.9)", horizon: 300, branch: null, sun: null, birds: [178, 34] },
+    side: { scene: "translate(-4 238) scale(.9)", horizon: 455, branch: "scale(.8)", sun: [362, 428], birds: [34, 226] },
+    seated: { scene: "translate(88 287) scale(.78)", horizon: 470, branch: "translate(400 0) scale(-.8 .8)", sun: [58, 446], birds: [182, 236] },
+  };
+
+  const ink = "#2a2521";
+  const twig = (d, width) => `<path d="${d}" fill="none" stroke="${ink}" stroke-width="${width}" stroke-linecap="round"/>`;
+  const leaf = (x, y, angle, length) =>
+    `<path transform="translate(${x} ${y}) rotate(${angle})" d="M0 0Q${length * .35} ${-length * .14} ${length} 0Q${length * .35} ${length * .14} 0 0Z" fill="${ink}" opacity=".82"/>`;
+  const blossom = (x, y, r) =>
+    `<circle cx="${x}" cy="${y}" r="${r}" fill="#efb2b8" opacity=".9"/><circle cx="${x}" cy="${y}" r="${r * .32}" fill="#c9545f"/>`;
+
+  // 왼쪽 위 모서리에서 뻗는 가지. 에너지가 낮으면 마른 가지, 보통이면 대나무, 높으면 매화.
+  const branchArt = `
+    ${twig("M-6 26C22 34 48 52 66 78", 7)}
+    ${twig("M66 78C80 100 104 122 140 130", 4.5)}
+    ${twig("M140 130C152 132 162 138 170 148", 2.5)}
+    ${twig("M38 42C44 28 56 16 74 10", 3)}
+    ${twig("M74 10L88 2", 1.8)}
+    ${twig("M66 78C78 70 92 66 106 66", 2.6)}
+    ${twig("M100 114C104 132 100 150 92 166", 2.4)}`;
+  const branches = {
+    bare: `${branchArt}<g fill="${ink}"><circle cx="88" cy="2" r="2.4"/><circle cx="106" cy="66" r="2.6"/><circle cx="92" cy="166" r="2.4"/><circle cx="170" cy="148" r="2.4"/><circle cx="124" cy="126" r="2"/></g>`,
+    bamboo: `
+      <path d="M8 -10V190" stroke="#8fa082" stroke-width="12" opacity=".45" filter="url(#wash)"/>
+      ${twig("M8 -10V60M8 66V128M8 134V190", 5)}
+      ${twig("M8 63L40 40M8 131L46 112", 1.8)}
+      ${leaf(40, 40, -20, 46)}${leaf(40, 40, 12, 52)}${leaf(40, 40, 40, 40)}
+      ${leaf(46, 112, -8, 50)}${leaf(46, 112, 24, 44)}${leaf(46, 112, 58, 36)}
+      ${leaf(8, 20, 22, 42)}${leaf(8, 20, 50, 34)}`,
+    plum: `${branchArt}
+      ${blossom(88, 4, 7)}${blossom(106, 66, 8)}${blossom(92, 166, 6.5)}${blossom(170, 148, 7)}
+      ${blossom(124, 127, 6)}${blossom(52, 30, 6)}${blossom(84, 92, 5.5)}`,
+  };
+
+  // 수묵담채 배경: 노을이나 달빛, 옅은 먼 산, 기분에 따라 구름·비·새·가지
+  function landscape({ horizon: h, branch, sun, birds }, { joy, energy, stress }, propIds) {
+    const warm = joy >= 3;
+    const cool = joy <= 1;
+    const glow = warm ? "#f0a98a" : cool ? "#a9bccb" : "#ecc9a6";
+    const skyProp = propIds.some((id) => ["sun", "moon", "stars", "rain", "thunder", "cloud"].includes(id));
+    const showSun = sun && !skyProp && stress < 2;
+    const rain = Array.from({ length: 26 }, (_, i) => {
+      const x = (i * 37) % 400;
+      const y = h - 200 + (i * 53) % 170;
+      return `M${x} ${y}l-6 22`;
+    }).join("");
+
+    return `
+      <defs>
+        <filter id="wash" x="-10%" y="-10%" width="120%" height="120%">
+          <feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="3" seed="9"/>
+          <feDisplacementMap in="SourceGraphic" scale="9"/>
+          <feGaussianBlur stdDeviation="1.4"/>
+        </filter>
+        <linearGradient id="glow" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="${glow}" stop-opacity="0"/>
+          <stop offset=".75" stop-color="${glow}" stop-opacity=".38"/>
+          <stop offset="1" stop-color="${glow}" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="far" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#9fb0bd" stop-opacity=".62"/>
+          <stop offset="1" stop-color="#9fb0bd" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="near" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#8fa39a" stop-opacity=".5"/>
+          <stop offset="1" stop-color="#8fa39a" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <rect x="0" y="${h - 170}" width="400" height="190" fill="url(#glow)"/>
+      ${stress >= 2 ? `
+        <g fill="#aeb5bb" opacity="${stress === 3 ? .5 : .32}" filter="url(#wash)">
+          <ellipse cx="110" cy="${h - 150}" rx="96" ry="15"/>
+          <ellipse cx="292" cy="${h - 118}" rx="112" ry="13"/>
+        </g>` : ""}
+      ${showSun ? `<circle cx="${sun[0]}" cy="${sun[1]}" r="${cool ? 17 : 21}" fill="${cool ? "#d3dbe3" : warm ? "#ef9f80" : "#eec39d"}" opacity=".85" filter="url(#wash)"/>` : ""}
+      <path d="M0 ${h - 40}C40 ${h - 70} 70 ${h - 92} 110 ${h - 62}S170 ${h - 30} 210 ${h - 58}S290 ${h - 102} 330 ${h - 70}S380 ${h - 50} 400 ${h - 62}V${h + 30}H0Z" fill="url(#far)" filter="url(#wash)"/>
+      <path d="M0 ${h - 6}C50 ${h - 30} 90 ${h - 20} 130 ${h - 34}S220 ${h - 4} 260 ${h - 22}S350 ${h - 40} 400 ${h - 14}V${h + 40}H0Z" fill="url(#near)" filter="url(#wash)"/>
+      ${stress === 3 ? `<path d="${rain}" stroke="#6b7781" stroke-width="1.2" opacity=".3"/>` : ""}
+      ${stress <= 1 && joy >= 2 ? `<path transform="translate(${birds[0]} ${birds[1]})" d="M0 6q5 -6 10 0q5 -6 10 0M26 -6q4 -5 8 0q4 -5 8 0M46 8q3 -4 6 0q3 -4 6 0" fill="none" stroke="${ink}" stroke-width="1.6" stroke-linecap="round" opacity=".7"/>` : ""}
+      ${branch ? `<g transform="${branch}" filter="url(#ink)">${branches[energy <= 1 ? "bare" : energy === 2 ? "bamboo" : "plum"]}</g>` : ""}`;
+  }
+
+  function illustration(index) {
+    const [name, , scene] = results[index];
+    const [poseId, faceId, ...placed] = scene.split(" ");
+    const pose = poses[poseId];
+    const propIds = placed.map((item) => item.split("@")[0]);
+    const placedProps = placed.map((item) => {
+      const [propId, slotId] = item.split("@");
+      const [x, y] = slots[slotId];
+      return `<g transform="translate(${x} ${y})">${props[propId]}</g>`;
+    }).join("");
+    const layout = layouts[layoutOf(poseId)];
+
+    return `
+      <svg class="scene" viewBox="0 0 400 600" role="img" aria-label="${name}을 나타낸 수묵담채 일러스트">
+        ${landscape(layout, stepsOf(index), propIds)}
+        <g class="art" filter="url(#ink)" transform="${layout.scene}">
+          ${placedProps}
+          <g transform="translate(40 14)">
+            ${pose.art}
+            ${head(pose.head, faces[faceId])}
+            ${pose.top ?? ""}
+          </g>
+        </g>
+      </svg>`;
+  }
+
+  function reasonOf(index) {
+    const steps = stepsOf(index);
+    return Object.keys(levels).map((id) => ({
+      emoji: levels[id].emojis[steps[id]],
+      text: `${levels[id].name} ${levels[id].words[steps[id]]}`,
+    }));
+  }
+
+  // 방문 기록에 저장한 결과 번호에 따라 선택 화면과 결과 화면을 바꾼다. 브라우저 뒤로 가기도 그대로 동작한다.
+  function showPage() {
+    const index = history.state?.result;
+    const hasResult = results[index] !== undefined;
+    chooseEl.hidden = hasResult;
+    resultEl.hidden = !hasResult;
+    shareEl.hidden = !hasResult;
+    titleEl.hidden = hasResult;
+    if (hasResult) {
+      resultEl.className = `result layout-${layoutOf(results[index][2].split(" ")[0])}`;
+      illustrationEl.innerHTML = illustration(index);
+      nameEl.textContent = results[index][0];
+      sentenceEl.textContent = results[index][1];
+      const reason = reasonOf(index);
+      reasonEl.textContent = reason.map((item) => item.emoji).join(" ");
+      reasonEl.setAttribute("aria-label", reason.map((item) => item.text).join(", "));
+    }
+    window.scrollTo(0, 0);
+  }
+
+  // 기쁨은 입과 볼, 에너지는 눈, 스트레스는 눈썹을 움직인다.
+  function liveFace() {
+    const [joy, energy, stress] = [...gaugeInputs].map((input) => input.value / 100);
+    const eye = 0.6 + energy * 4.6;
+    const mouth = 24 + (joy - 0.4) * 30;
+    const inner = -3 + (stress - 0.4) * 8;
+    const outer = -3 - (stress - 0.4) * 3;
+    const smile = joy >= 0.75;
+
+    return head([60, 66, 0], `
+      <ellipse class="fill" cx="-11" cy="8" rx="3.5" ry="${eye}"/>
+      <ellipse class="fill" cx="15" cy="8" rx="3.5" ry="${eye}"/>
+      <path class="fine" d="M-20 ${outer}L-6 ${inner}M24 ${outer}L10 ${inner}"/>
+      <path class="${smile ? "fill" : "thin"}" d="M-6 24Q3 ${mouth} 12 24${smile ? "Z" : ""}"/>
+      <g opacity="${joy}">${blush}</g>
+      ${joy < 0.2 ? drop(-14, 14) : ""}
+      ${stress >= 0.7 ? drop(25, 6) : ""}`);
+  }
+
+  function updateGauge(input) {
+    input.style.setProperty("--ratio", input.value / 100);
+    document.getElementById(`${input.id}-value`).textContent = input.value;
+    faceEl.innerHTML = liveFace();
+  }
+
+  gaugeInputs.forEach((input) => {
+    updateGauge(input);
+    input.addEventListener("input", () => updateGauge(input));
+  });
+
+  gaugesEl.addEventListener("submit", (event) => {
+    event.preventDefault();
+    history.pushState({ result: judgeResult() }, "");
+    showPage();
+  });
+
+  const loadImage = (src) => new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+    image.src = src;
+  });
+
+  const graphemes = (text) => window.Intl?.Segmenter
+    ? [...new Intl.Segmenter("ko", { granularity: "grapheme" }).segment(text)].map((item) => item.segment)
+    : Array.from(text);
+
+  // 브라우저가 화면에 배치한 글자 자리를 한 글자씩 따라 그린다. 세로쓰기의 쉼표 같은 문장부호는 화면처럼 눕힌다.
+  function drawText(target, el, origin, scale) {
+    const style = getComputedStyle(el);
+    const vertical = style.writingMode.startsWith("vertical");
+    const node = el.firstChild;
+    const range = document.createRange();
+    let offset = 0;
+    // 글자는 투명한 별도 층에 그린 뒤 합친다. 흑백 처리가 한지 바탕까지 물들이지 않게 하기 위해서다.
+    const layer = document.createElement("canvas");
+    layer.width = target.canvas.width;
+    layer.height = target.canvas.height;
+    const ctx = layer.getContext("2d");
+    ctx.scale(scale, scale);
+    ctx.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+    ctx.fillStyle = style.color;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    for (const char of graphemes(node.data)) {
+      range.setStart(node, offset);
+      range.setEnd(node, offset + char.length);
+      offset += char.length;
+      if (!char.trim()) continue;
+      const box = range.getBoundingClientRect();
+      ctx.save();
+      ctx.translate(box.left + box.width / 2 - origin.left, box.top + box.height / 2 - origin.top);
+      if (vertical && !/[가-힣]/.test(char)) ctx.rotate(Math.PI / 2);
+      ctx.fillText(char, 0, 0);
+      ctx.restore();
+    }
+
+    // 이모지처럼 화면에서 흑백 필터를 쓴 글자는 층 전체를 흑백으로 바꾼다.
+    if (style.filter.includes("grayscale")) {
+      const pixels = ctx.getImageData(0, 0, layer.width, layer.height);
+      const data = pixels.data;
+      for (let i = 0; i < data.length; i += 4) {
+        data[i] = data[i + 1] = data[i + 2] = data[i] * .299 + data[i + 1] * .587 + data[i + 2] * .114;
+      }
+      ctx.putImageData(pixels, 0, 0);
+    }
+    target.save();
+    target.setTransform(1, 0, 0, 1, 0, 0);
+    target.drawImage(layer, 0, 0);
+    target.restore();
+  }
+
+  // 페이지 스타일과 잉크 필터를 그림 안에 직접 넣어, 따로 떼어도 화면과 같은 그림이 되게 한다.
+  async function drawIllustration(ctx, svg, origin, scale) {
+    const copy = svg.cloneNode(true);
+    const sources = svg.querySelectorAll("*");
+    copy.querySelectorAll("*").forEach((el, i) => {
+      const style = getComputedStyle(sources[i]);
+      for (const prop of ["fill", "stroke", "stroke-width", "stroke-linecap", "stroke-linejoin", "opacity"]) {
+        el.style.setProperty(prop, style.getPropertyValue(prop));
+      }
+    });
+    copy.prepend(document.getElementById("ink").cloneNode(true));
+    const box = svg.getBoundingClientRect();
+    copy.setAttribute("width", box.width * scale);
+    copy.setAttribute("height", box.height * scale);
+    const image = await loadImage(`data:image/svg+xml;charset=utf-8,${encodeURIComponent(new XMLSerializer().serializeToString(copy))}`);
+    ctx.drawImage(image, box.left - origin.left, box.top - origin.top, box.width, box.height);
+  }
+
+  // 결과 포스터 한 장을 화면에 보이는 그대로 2배 크기 PNG로 만든다.
+  async function resultImage() {
+    await document.fonts.ready;
+    const scale = 2;
+    const card = resultEl.getBoundingClientRect();
+    const origin = { left: card.left, top: card.top };
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(card.width * scale);
+    canvas.height = Math.round(card.height * scale);
+    const ctx = canvas.getContext("2d");
+    ctx.scale(scale, scale);
+
+    // 종이색 위에 결·티끌 무늬를 CSS와 같은 순서(목록 뒤쪽이 아래)로 깐다.
+    const cardStyle = getComputedStyle(resultEl);
+    ctx.fillStyle = cardStyle.backgroundColor;
+    ctx.fillRect(0, 0, card.width, card.height);
+    const textures = [...cardStyle.backgroundImage.matchAll(/url\("(.+?)"\)/g)].map((match) => match[1]).reverse();
+    for (const url of textures) {
+      ctx.fillStyle = ctx.createPattern(await loadImage(url), "repeat");
+      ctx.fillRect(0, 0, card.width, card.height);
+    }
+
+    await drawIllustration(ctx, illustrationEl.querySelector("svg"), origin, scale);
+    await drawIllustration(ctx, resultEl.querySelector(".seal"), origin, scale);
+    [nameEl, sentenceEl, signEl, reasonEl].forEach((el) => drawText(ctx, el, origin, scale));
+    return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+  }
+
+  async function saveImage() {
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(await resultImage());
+    link.download = `오늘의 나 - ${results[history.state.result][0]}.png`;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+  }
+
+  // 페이지 주소를 클립보드에 복사하고, 버튼 글자로 잠깐 결과를 알려 준다.
+  // 클립보드 API를 쓸 수 없는 환경에서는 숨긴 입력칸을 선택해 복사한다.
+  async function copyLink() {
+    const button = document.getElementById("copy-button");
+    const url = location.href.split("#")[0];
+    let copied = false;
+    try {
+      await navigator.clipboard.writeText(url);
+      copied = true;
+    } catch {
+      const field = document.createElement("textarea");
+      field.value = url;
+      field.setAttribute("readonly", "");
+      field.style.cssText = "position: fixed; opacity: 0";
+      document.body.append(field);
+      field.select();
+      copied = document.execCommand("copy");
+      field.remove();
+    }
+    button.textContent = copied ? "복사했어요!" : "복사하지 못했어요";
+    clearTimeout(button.resetTimer);
+    button.resetTimer = setTimeout(() => { button.textContent = "URL 복사"; }, 1500);
+  }
+
+  document.getElementById("copy-button").addEventListener("click", copyLink);
+  document.getElementById("save-button").addEventListener("click", saveImage);
+
+  // 결과 화면에서는 아래 버튼들을 뺀 어디를 클릭해도 처음 화면으로 돌아간다.
+  document.addEventListener("click", (event) => {
+    if (!resultEl.hidden && !event.target.closest("#share")) {
+      history.back();
+    }
+  });
+
+  window.addEventListener("popstate", showPage);
+  showPage();
+</script>
+</body>
+</html>
