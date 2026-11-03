@@ -1142,6 +1142,12 @@
   }
 
   async function saveImage() {
+    // 카카오톡 안 브라우저는 페이지가 만든 이미지 파일을 받지 못해 깨진 파일로 저장한다.
+    // 그래서 카톡에서는 같은 결과 화면을 휴대폰 기본 브라우저로 열고, 거기서 다시 저장하게 한다.
+    if (/KAKAOTALK/i.test(navigator.userAgent)) {
+      location.href = `kakaotalk://web/openExternal?url=${encodeURIComponent(resultUrl(history.state.result))}`;
+      return;
+    }
     const link = document.createElement("a");
     link.href = URL.createObjectURL(await resultImage());
     link.download = `오늘의 나 - ${results[history.state.result][0]}.png`;
